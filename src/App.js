@@ -1,17 +1,17 @@
-import logo from './logo.ico';
-import './App.css';
+import Menu from './components/Header';
+import Footer from './components/Footer'
+import HeroSection from './components/Hero'
+import Cards from './components/Cards'
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-         This Website doesn't work for a while.
-        </p>
-      </header>
-    </div>
-  );
+    <>
+      <Menu />
+      <HeroSection />
+      <Cards />
+      <Footer/>
+    </>
+  )
 }
 
 export default App;
