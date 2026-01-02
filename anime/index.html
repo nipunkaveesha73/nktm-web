@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NKTM - AnimeVault | Live Search & Discovery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: white; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.034); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .hero-gradient { background: linear-gradient(0deg, #050505 0%, rgba(5, 5, 5, 0) 100%); }
+        .hidden { display: none; }
+        
+        /* Video Aspect Ratio */
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 20px; background: #000; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        
+        /* Loader */
+        .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Carousel */
+        .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease-in-out; z-index: 1; }
+        .hero-slide.active { opacity: 1; z-index: 2; }
+        /* Hero nav buttons */
+        .hero-nav { position: absolute; inset: auto 24px 24px auto; right: 24px; bottom: 24px; display:flex; gap:8px; z-index:40; }
+        .hero-nav button { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); color: white; padding: 0.6rem 0.8rem; border-radius: 9999px; cursor:pointer; font-size:1.1rem; }
+        
+        /* Nav active state */
+        .nav-link.active { color: white; border-bottom: 2px solid #3b82f6; }
+
+        /* Type selector */
+        .type-link { color: rgba(255,255,255,0.7); padding-bottom: 0.25rem; }
+        .type-link.active { color: white; border-bottom: 2px solid #10b981; }
+
+        /* Ranking Badge for Trending */
+        .rank-badge {
+            position: absolute; top: -10px; left: -10px;
+            background: linear-gradient(45deg, #3b82f6, #9333ea);
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; font-weight: 800; font-size: 1.2rem; z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        /* Hide scrollbar for Latest Popular horizontal list but keep it scrollable */
+        #latest-list {
+            -ms-overflow-style: none;  /* Internet Explorer 10+ */
+            scrollbar-width: none;     /* Firefox */
+        }
+        #latest-list::-webkit-scrollbar {
+            display: none; /* Safari and Chrome */
+        }
+        /* Latest Popular nav buttons */
+        .latest-popular-wrapper { position: relative; }
+        .latest-nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%); z-index: 30;
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.06); color: white; width:36px; height:36px; border-radius:9999px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+        }
+        .latest-nav-btn:hover { background: rgba(255,255,255,0.06); }
+        .latest-nav-left { left: 8px; }
+        .latest-nav-right { right: 8px; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Ambient BG -->
+    <div class="fixed inset-0 -z-10 opacity-30">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-600 rounded-full filter blur-[120px]"></div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600 rounded-full filter blur-[120px]"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 px-6 py-4 flex flex-col md:flex-row justify-between items-center glass gap-4">
+        <div onclick="location.reload()" class="text-2xl font-extrabold tracking-tighter cursor-pointer bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+           NKTM ANIMEVAULT
+        </div>
+        
+        <div class="relative w-full max-w-md">
+            <input type="text" id="search-input" placeholder="Search for movies..." 
+                   class="w-full bg-white/5 border border-white/10 rounded-full py-2 px-10 text-sm focus:outline-none transition-all focus:border-blue-500">
+            <svg class="absolute left-3 top-2.5 text-gray-400" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+
+        <div class="flex items-center space-x-6 text-sm font-semibold text-gray-400">
+            <div class="flex items-center space-x-2">
+                <button id="btn-movie" onclick="setType('movie')" class="type-link transition">Movies</button>
+                <button id="btn-tv" onclick="setType('tv')" class="type-link transition">Series</button>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="btn-explore" onclick="changeMode('explore')" class="nav-link transition pb-1">Explore</button>
+                <button id="btn-trending" onclick="changeMode('trending')" class="nav-link transition pb-1">Trending</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- LOADING OVERLAY -->
+    <div id="loading" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center hidden">
+        <span class="loader"></span>
+    </div>
+
+    <!-- HOME VIEW -->
+    <section id="home-view">
+        <div id="hero-carousel" class="relative h-[75vh] w-full overflow-hidden">
+            <!-- Hero slides injected here -->
+        </div>
+
+        <!-- Latest Popular (shows in Explore mode) -->
+        <div id="latest-popular" class="max-w-7xl mx-auto px-6 mt-8 mb-6 hidden latest-popular-wrapper">
+            <h3 class="text-2xl font-bold mb-4">Latest Popular</h3>
+            <button id="latest-prev" class="latest-nav-btn latest-nav-left" aria-label="Scroll left">‹</button>
+            <div id="latest-list" class="flex space-x-4 overflow-x-auto pb-4 -mx-6 px-6">
+                <!-- items injected here -->
+            </div>
+            <button id="latest-next" class="latest-nav-btn latest-nav-right" aria-label="Scroll right">›</button>
+        </div>
+
+        <main class="max-w-7xl mx-auto px-6 py-12">
+            <h2 id="grid-title" class="text-3xl font-bold mb-8 tracking-tight">Popular Movies</h2>
+            <div id="anime-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+                <!-- Cards injected here -->
+            </div>
+        </main>
+    </section>
+
+    <!-- DETAIL VIEW -->
+    <section id="detail-view" class="hidden min-h-screen pt-32 pb-20">
+        <div id="detail-content" class="max-w-7xl mx-auto px-6"></div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer id="main-footer" class="bg-[#080808] border-t border-white/5 mt-20">
+        <div class="max-w-7xl mx-auto px-6 py-12 text-center">
+            <p class="text-gray-500 text-sm">© 2025 NKTM. Developed by <a href="https://github.com/nipunkaveesha73">Nipun Kaveesha</a>.</p>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE = "https://api.jikan.moe/v4";
+        let currentMode = 'explore'; // 'explore', 'trending', 'search'
+        let selectedType = 'movie'; // 'movie' or 'tv'
+        let heroList = [];
+        let currentSlide = 0;
+
+        // On Load
+        window.onload = () => { setType(selectedType); };
+
+        // Set selected type (movie / tv)
+        function setType(type) {
+            selectedType = type === 'tv' ? 'tv' : 'movie';
+            // Update UI
+            document.getElementById('btn-movie').classList.toggle('active', selectedType === 'movie');
+            document.getElementById('btn-tv').classList.toggle('active', selectedType === 'tv');
+            // Refresh current mode
+            changeMode(currentMode);
+        }
+
+        // Main Controller for Page Modes
+        async function changeMode(mode) {
+            currentMode = mode;
+            showLoading(true);
+            window.scrollTo(0,0);
+
+            // Update Nav UI
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById('detail-view').classList.add('hidden');
+            document.getElementById('home-view').classList.remove('hidden');
+
+            let url = "";
+            const gridTitle = document.getElementById('grid-title');
+            const heroSection = document.getElementById('hero-carousel');
+
+            if (mode === 'explore') {
+                document.getElementById('btn-explore').classList.add('active');
+                gridTitle.innerText = "Popular Discoveries";
+                gridTitle.classList.remove('mt-12');
+                heroSection.classList.remove('hidden');
+                url = `${API_BASE}/top/anime?type=${selectedType}&filter=bypopularity&page=1`;
+                // Show and populate Latest Popular list
+                document.getElementById('latest-popular').classList.remove('hidden');
+                populateLatestPopular(selectedType);
+            } 
+            else if (mode === 'trending') {
+                document.getElementById('btn-trending').classList.add('active');
+                gridTitle.innerText = "Highest Rated All-Time";
+                // Add extra top margin specifically for the trending header
+                gridTitle.classList.add('mt-12');
+                heroSection.classList.add('hidden'); // No hero on trending for distinct look
+                url = `${API_BASE}/top/anime?type=${selectedType}&filter=favorite&page=1`;
+                document.getElementById('latest-popular').classList.add('hidden');
+            }
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                const items = data.data || [];
+
+                if (mode === 'explore') {
+                    heroList = items.slice(0, 5);
+                    renderHero();
+                }
+                renderGrid(items);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Search Controller
+        document.getElementById('search-input').addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value;
+                if (!query) return;
+
+                showLoading(true);
+                currentMode = 'search';
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.getElementById('hero-carousel').classList.add('hidden');
+                document.getElementById('grid-title').innerText = `Search Results: ${query}`;
+
+                try {
+                    const res = await fetch(`${API_BASE}/anime?q=${encodeURIComponent(query)}&type=${selectedType}&order_by=score&sort=desc`);
+                    const data = await res.json();
+                    renderGrid(data.data || []);
+                } catch (err) { console.error(err); }
+                finally { showLoading(false); }
+            }
+        });
+
+        // UI Rendering Logic
+        function renderHero() {
+            const carousel = document.getElementById('hero-carousel');
+            carousel.innerHTML = heroList.map((item, i) => `
+                <div class="hero-slide ${i === 0 ? 'active' : ''}" data-idx="${i}">
+                    <img src="${item.images.jpg.large_image_url}" class="w-full h-full object-cover opacity-50">
+                    <div class="absolute inset-0 hero-gradient"></div>
+                    <div class="absolute inset-0 flex flex-col justify-center px-6 md:px-24">
+                        <span class="text-blue-500 font-bold tracking-widest uppercase text-xs mb-2">Featured Movie</span>
+                        <h1 class="text-4xl md:text-7xl font-black mb-4 line-clamp-1">${item.title}</h1>
+                        <p class="max-w-xl text-gray-400 line-clamp-2 mb-8">${item.synopsis || ''}</p>
+                        <button onclick="viewDetails(${item.mal_id})" class="w-max bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-blue-500 hover:text-white transition">View Movie</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add prev/next buttons to the carousel
+            const navHtml = `
+                <div class="hero-nav" aria-hidden="false">
+                    <button id="hero-prev" aria-label="Previous">‹</button>
+                    <button id="hero-next" aria-label="Next">›</button>
+                </div>
+            `;
+            carousel.insertAdjacentHTML('beforeend', navHtml);
+
+            // Start simple auto-cycle
+            startHeroTimer();
+
+            // Attach handlers for the buttons
+            const prevBtn = document.getElementById('hero-prev');
+            const nextBtn = document.getElementById('hero-next');
+            if (prevBtn) prevBtn.addEventListener('click', () => { heroPrev(); resetHeroTimer(); });
+            if (nextBtn) nextBtn.addEventListener('click', () => { heroNext(); resetHeroTimer(); });
+        }
+
+        function heroNext() {
+            const slides = document.querySelectorAll('.hero-slide');
+            if (!slides.length) return;
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function heroPrev() {
+            const slides = document.querySelectorAll('.hero-slide');
+            if (!slides.length) return;
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function startHeroTimer() {
+            if (window.heroTimer) clearInterval(window.heroTimer);
+            window.heroTimer = setInterval(() => {
+                heroNext();
+            }, 6000);
+        }
+
+        function resetHeroTimer() {
+            startHeroTimer();
+        }
+
+        function renderGrid(list) {
+            const grid = document.getElementById('anime-grid');
+            if (list.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center py-20 text-gray-500">No movies found.</p>`;
+                return;
+            }
+
+            grid.innerHTML = list.map((anime, index) => `
+                <div onclick="viewDetails(${anime.mal_id})" class="group cursor-pointer relative">
+                    ${currentMode === 'trending' ? `<div class="rank-badge">${index + 1}</div>` : ''}
+                    <div class="relative overflow-hidden rounded-2xl aspect-[3/4] mb-3 glass">
+                        <img src="${anime.images.jpg.large_image_url}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                        <div class="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-2 py-1 rounded text-[10px] font-bold text-yellow-400">★ ${anime.score || 'N/A'}</div>
+                    </div>
+                    <h3 class="font-bold text-sm line-clamp-1 group-hover:text-blue-400 transition">${anime.title}</h3>
+                    <p class="text-xs text-gray-500 mt-1">${anime.year || 'Movie'}</p>
+                </div>
+            `).join('');
+        }
+
+        // Populate Latest Popular horizontal list
+        async function populateLatestPopular(type) {
+            const listContainer = document.getElementById('latest-list');
+            listContainer.innerHTML = '';
+            try {
+                const res = await fetch(`${API_BASE}/anime?type=${type}&order_by=popularity&sort=desc&limit=12`);
+                const data = await res.json();
+                const items = data.data || [];
+                if (!items.length) {
+                    listContainer.innerHTML = '<p class="text-gray-500">No items available.</p>';
+                    return;
+                }
+
+                listContainer.innerHTML = items.map(item => `
+                    <div onclick="viewDetails(${item.mal_id})" class="min-w-[180px] max-w-[220px] bg-transparent cursor-pointer">
+                        <div class="relative overflow-hidden rounded-lg glass" style="height:260px">
+                            <img src="${item.images.jpg.large_image_url}" class="w-full h-full object-cover" />
+                        </div>
+                        <h4 class="mt-2 text-sm font-semibold line-clamp-2">${item.title}</h4>
+                        <div class="text-xs text-gray-400">★ ${item.score || 'N/A'}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('populateLatestPopular error', err);
+                listContainer.innerHTML = '<p class="text-gray-500">Could not load latest popular items.</p>';
+            }
+        }
+
+        // Latest Popular scroll controls
+        function latestScroll(amount) {
+            const el = document.getElementById('latest-list');
+            if (!el) return;
+            el.scrollBy({ left: amount, behavior: 'smooth' });
+        }
+
+        document.getElementById('latest-prev').addEventListener('click', () => {
+            const el = document.getElementById('latest-list');
+            if (!el) return;
+            // scroll left by 75% of container width
+            latestScroll(-Math.round(el.clientWidth * 0.75));
+        });
+
+        document.getElementById('latest-next').addEventListener('click', () => {
+            const el = document.getElementById('latest-list');
+            if (!el) return;
+            latestScroll(Math.round(el.clientWidth * 0.75));
+        });
+
+        // Detailed View Logic
+        async function viewDetails(id) {
+            showLoading(true);
+            window.scrollTo(0,0);
+            try {
+                const res = await fetch(`${API_BASE}/anime/${id}/full`);
+                const result = await res.json();
+                const anime = result.data;
+
+                document.getElementById('home-view').classList.add('hidden');
+                document.getElementById('detail-view').classList.remove('hidden');
+
+                // Prepare extra fields safely
+                const episodes = anime.episodes || 'N/A';
+                const genres = (anime.genres || []).map(g => g.name).join(', ') || 'N/A';
+                const producers = (anime.producers || []).map(p => p.name).join(', ') || 'N/A';
+                const studios = (anime.studios || []).map(s => s.name).join(', ') || 'N/A';
+                const aired = (anime.aired && anime.aired.string) ? anime.aired.string : (anime.published ? anime.published.string : 'N/A');
+                const status = anime.status || 'N/A';
+                const source = anime.source || 'N/A';
+                const members = anime.members || 'N/A';
+                const popularity = anime.popularity ? `#${anime.popularity}` : 'N/A';
+
+                document.getElementById('detail-content').innerHTML = `
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                        <div class="lg:col-span-2">
+                            <button onclick="changeMode('explore')" class="mb-6 text-blue-400 flex items-center gap-2">← Back to Explore</button>
+                            <h1 class="text-5xl font-black mb-6 tracking-tighter">${anime.title}</h1>
+                            <div class="glass p-8 rounded-[32px] mb-8">
+                                <h3 class="text-xl font-bold mb-4">Synopsis</h3>
+                                <p class="text-gray-300 leading-relaxed">${anime.synopsis || 'No description available.'}</p>
+                            </div>
+
+                            <div class="glass p-6 rounded-[20px] mb-8">
+                                <h3 class="text-xl font-bold mb-4">Details</h3>
+                                <div class="grid grid-cols-2 gap-4 text-sm text-gray-300">
+                                    <div><strong>Type</strong><div class="text-gray-400">${anime.type || 'N/A'}</div></div>
+                                    <div><strong>Episodes</strong><div class="text-gray-400">${episodes}</div></div>
+                                    <div><strong>Duration</strong><div class="text-gray-400">${anime.duration || 'N/A'}</div></div>
+                                    <div><strong>Status</strong><div class="text-gray-400">${status}</div></div>
+                                    <div><strong>Aired</strong><div class="text-gray-400">${aired}</div></div>
+                                    <div><strong>Source</strong><div class="text-gray-400">${source}</div></div>
+                                    <div><strong>Genres</strong><div class="text-gray-400 col-span-2">${genres}</div></div>
+                                    <div><strong>Producers</strong><div class="text-gray-400 col-span-2">${producers}</div></div>
+                                    <div><strong>Studios</strong><div class="text-gray-400 col-span-2">${studios}</div></div>
+                                </div>
+                            </div>
+
+                            <h3 class="text-xl font-bold mb-4">Official Trailer</h3>
+                            <div class="video-container glass">
+                                ${anime.trailer && anime.trailer.embed_url ? `<iframe src="${anime.trailer.embed_url}"></iframe>` : '<div class="absolute inset-0 flex items-center justify-center">No Trailer Available</div>'}
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="glass p-6 rounded-3xl">
+                                <img src="${anime.images.jpg.large_image_url}" class="w-full rounded-2xl mb-4">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between border-b border-white/5 pb-2"><span>Rating</span><span class="text-yellow-400">★ ${anime.score || 'N/A'}</span></div>
+                                    <div class="flex justify-between border-b border-white/5 pb-2"><span>Rank</span><span>#${anime.rank || 'N/A'}</span></div>
+                                    <div class="flex justify-between border-b border-white/5 pb-2"><span>Members</span><span>${members}</span></div>
+                                    <div class="flex justify-between border-b border-white/5 pb-2"><span>Popularity</span><span>${popularity}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) { console.error(err); }
+            finally { showLoading(false); }
+        }
+
+        function showLoading(state) {
+            document.getElementById('loading').classList.toggle('hidden', !state);
+        }
+    </script>
+</body>
+</html>

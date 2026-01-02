@@ -1,0 +1,234 @@
+/* Base & Scrollbar */
+:root {
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(20, 20, 25, 0.65);
+    --glass-active: rgba(40, 40, 50, 0.75);
+}
+
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background-color: #000;
+    color: #e5e5e5;
+    overflow: hidden;
+}
+
+/* Custom Scrollbar for Main Area */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Liquid Glass Aesthetics */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-right: 1px solid var(--glass-border);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    background: rgba(255, 255, 255, 0.07);
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+.glass-header {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+/* Sidebar Nav Items */
+/* Sidebar Nav Items */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: #9ca3af;
+    /* Gray-400 */
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s ease-out;
+    cursor: pointer;
+    margin-bottom: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.nav-item.active {
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.25), rgba(147, 51, 234, 0.25), transparent);
+    color: #fff;
+    font-weight: 600;
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 20px;
+    width: 3px;
+    background: #60a5fa;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 10px #60a5fa;
+}
+
+/* Featured / Hero */
+.hero-banner {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7);
+}
+
+.hero-gradient {
+    background: linear-gradient(to top, #000 0%, transparent 100%);
+}
+
+/* Loader */
+.loader {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #fff;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    animation: rot 1s linear infinite;
+}
+
+@keyframes rot {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Ambient Background */
+.ambient-blob {
+    position: fixed;
+    z-index: -1;
+    filter: blur(100px);
+    opacity: 0.4;
+    animation: pulse 10s infinite alternate;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+
+    100% {
+        opacity: 0.5;
+        transform: scale(1.1);
+    }
+}
+
+/* Filter Select Custom */
+.glass-select {
+    appearance: none;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 6px 32px 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 14px;
+}
+
+.glass-select:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Fix for standard select dropdown on Windows */
+.glass-select option {
+    background-color: #1a1a1a;
+    color: white;
+}
+
+/* Typography */
+h1,
+h2,
+h3 {
+    letter-spacing: -0.02em;
+}
+
+
+/* Hero Carousel */
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.hero-slide.active {
+    opacity: 1;
+    z-index: 20;
+    pointer-events: auto;
+}
+
+/* Mobile Sidebar */
+@media (max-width: 768px) {
+    .mobile-sidebar-open {
+        display: flex !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: 50;
+        background: rgba(10, 10, 15, 0.95);
+        backdrop-filter: blur(20px);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+        animation: slideIn 0.3s ease-out;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

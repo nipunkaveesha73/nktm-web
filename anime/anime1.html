@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suzume | AnimeVault</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hero-mask {
+            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        }
+
+        .bg-blur-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            filter: blur(100px);
+            opacity: 0.3;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 24px;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Ambient Background -->
+    <div class="bg-blur-effect">
+        <div class="absolute top-20 left-10 w-96 h-96 bg-blue-600 rounded-full mix-blend-screen opacity-50"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-600 rounded-full mix-blend-screen opacity-50"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 px-6 py-4 flex justify-between items-center glass">
+        <a href="../index.html" class="flex items-center space-x-2 group">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:-translate-x-1 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
+            <span class="text-xl font-extrabold tracking-tighter">ANIMEVAULT</span>
+        </a>
+        <div class="flex items-center space-x-6">
+            <button class="text-sm font-medium text-gray-400 hover:text-white transition">Share</button>
+            <button class="bg-white text-black px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-500 hover:text-white transition">Watch Now</button>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="relative w-full h-[60vh]">
+        <img src="https://wallpaperaccess.com/full/8323440.jpg" alt="Suzume Banner" class="w-full h-full object-cover hero-mask">
+        <div class="absolute bottom-0 left-0 w-full p-6 md:p-20 flex flex-col items-start">
+            <div class="flex items-center space-x-3 mb-4">
+                <span class="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest">Adventure</span>
+                <span class="bg-purple-600 text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest">Fantasy</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-black tracking-tighter mb-2">Suzume</h1>
+            <p class="text-gray-400 text-lg">Suzume no Tojimari • 2022 • 2h 2m</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 -mt-20 relative z-10 pb-20">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            
+            <!-- Left: Synopsis & Details -->
+            <div class="lg:col-span-2 space-y-10">
+                <!-- Synopsis Card -->
+                <div class="glass p-8 md:p-10 rounded-[32px]">
+                    <h2 class="text-2xl font-bold mb-6">Synopsis</h2>
+                    <p class="text-gray-300 leading-relaxed text-lg mb-8">
+                        A modern action adventure road story where a 17-year-old girl named Suzume helps a mysterious young man close doors from the outer world that are releasing disasters all over Japan.
+                    </p>
+                    <p class="text-gray-300 leading-relaxed text-lg">
+                        Suzume's journey begins in a quiet town in Kyushu when she encounters a young man who tells her, "I'm looking for a door." What Suzume finds is a single weathered door standing upright in the midst of ruins as though it was shielded from whatever catastrophe struck. Seemingly drawn by its power, Suzume reaches for the knob...
+                    </p>
+                </div>
+
+                <!-- Video Section -->
+                <div class="glass p-4 rounded-[32px]">
+                    <h3 class="text-xl font-bold p-4">Official Trailer</h3>
+                    <div class="video-container">
+                        <!-- Replace with actual YouTube ID -->
+                        <iframe 
+                            src="https://www.youtube.com/embed/f7596p9rNqA?autoplay=0&mute=0" 
+                            title="YouTube video player" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Sidebar Information -->
+            <div class="space-y-6">
+                <div class="glass p-8 rounded-[32px]">
+                    <h3 class="text-xl font-bold mb-6">Information</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center py-3 border-b border-white/5">
+                            <span class="text-gray-500 text-sm">Rating</span>
+                            <span class="text-yellow-400 font-bold">★ 8.5 / 10</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/5">
+                            <span class="text-gray-500 text-sm">Status</span>
+                            <span class="text-green-400 font-medium">Finished Airing</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/5">
+                            <span class="text-gray-500 text-sm">Studio</span>
+                            <span class="text-white font-medium">CoMix Wave Films</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/5">
+                            <span class="text-gray-500 text-sm">Director</span>
+                            <span class="text-white font-medium">Makoto Shinkai</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/5">
+                            <span class="text-gray-500 text-sm">Language</span>
+                            <span class="text-white font-medium">Japanese (Sub/Dub)</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 space-y-3">
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition">
+                            Watch Trailer
+                        </button>
+                        <button class="w-full glass hover:bg-white/10 text-white font-bold py-4 rounded-2xl transition">
+                            Add to Favorites
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cast Highlight -->
+                <div class="glass p-8 rounded-[32px]">
+                    <h3 class="text-xl font-bold mb-6">Main Voice Cast</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 rounded-full bg-gray-800"></div>
+                            <div>
+                                <p class="text-sm font-bold">Nanoka Hara</p>
+                                <p class="text-xs text-gray-500">Suzume Iwato</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 rounded-full bg-gray-800"></div>
+                            <div>
+                                <p class="text-sm font-bold">Hokuto Matsumura</p>
+                                <p class="text-xs text-gray-500">Souta Munakata</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-10 text-center text-gray-600 text-sm border-t border-white/5">
+        © 2023 AnimeVault Movie Database
+    </footer>
+
+</body>
+</html>
